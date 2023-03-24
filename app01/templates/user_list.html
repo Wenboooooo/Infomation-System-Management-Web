@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div style="margin-bottom: 10px">
+    <a class="btn btn-success" href="/user/add/">
+        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+        New User (ModelForm)</a>
+</div>
+
+
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+        User Table
+    </div>
+
+    <!-- Table -->
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Gender</th>
+            <th>Department</th>
+            <th>Password</th>
+            <th>Balance</th>
+            <th>Entry Date</th>
+            <th>Operate</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in queryset %}
+        <tr>
+            <th>{{item.id}}</th>
+            <td>{{item.name}}</td>
+            <td>{{item.age}}</td>
+            <td>{{item.get_gender_display}}</td>
+            <td>{{item.depart.title}}</td>
+            <td>{{item.password}}</td>
+            <td>{{item.balance}}</td>
+            <td>{{item.entry_time|date:"Y-m-d"}}</td>
+            <td>
+                <a class="btn btn-primary btn-xs" href="/user/{{item.id}}/edit">edit</a>
+                <a class="btn btn-danger btn-xs" href="/user/{{item.id}}/delete">delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul class="pagination">
+        {{ page_string }}
+    </ul>
+
+</div>
+{% endblock %}

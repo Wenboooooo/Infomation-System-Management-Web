@@ -1,0 +1,208 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="panel panel-default">
+    <div class="panel-heading">Task List</div>
+    <div class="panel-body">
+        <form id="formAdd">
+            <div class="clearfix">
+                {% for field in form %}
+                <div class="col-xs-6">
+                    <div class="form-group" style="position: relative; margin-bottom: 20px; ">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        <span class="error-msg" style="color: red; position: absolute;"></span>
+
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="col-xs-12">
+                    <button id="btnAdd" type="button" class="btn btn-primary"> Submit</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+        Administrator Table
+    </div>
+
+    <!-- Table -->
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Level</th>
+            <th>Principal</th>
+            <th>Operate</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in queryset %}
+        <tr>
+            <th>{{item.id}}</th>
+            <td>{{item.title}}</td>
+            <td>{{item.get_level_display}}</td>
+            <td>{{item.user.username}}</td>
+            <td>
+                <a class="btn btn-primary btn-xs" href="#">edit</a>
+                <a class="btn btn-danger btn-xs" href="#">delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<ul class="pagination">
+    {{ page_string }}
+</ul>
+
+
+
+
+
+
+
+
+
+<h1>Ajax Learning</h1>
+<div class="container">
+    <!--    <input type="text" class="btn btn-primary" value="click" onclick="clickMe()"/>-->
+    <h1>Task Management</h1>
+
+    <h3>example 1</h3>
+    <input id="btn1" type="button" class="btn btn-primary" value="click"/>
+
+    <h3>example 2</h3>
+    <input type="text" id="txtUser" placeholder="name">
+    <input type="text" id="txtAge" placeholder="age">
+    <input id="btn2" type="button" class="btn btn-primary" value="click"/>
+</div>
+{% endblock %}
+
+{% block js %}
+<!--<script type="text/javascript">-->
+<!--  function clickMe() {-->
+<!--    $.ajax({-->
+<!--      url: '/task/ajax/',-->
+<!--      type: "get",-->
+<!--      data: {-->
+<!--        n1:123,-->
+<!--        n2:456-->
+<!--        },-->
+<!--        success: function(res){-->
+<!--        console.log(res);-->
+<!--        }-->
+<!--    })-->
+<!--  }-->
+
+<!--</script>-->
+
+
+<script type="text/javascript">
+   $(function(){
+      bindBtn1Event();
+      bindBtn2Event();
+      bindBtnAddEvent();
+   })
+   function bindBtn1Event() {
+   $("#btn1").click(function(){
+   $.ajax({
+      url: '/task/ajax/',
+      type: "post",
+      data: {
+        n1:123,
+        n2:456
+        },
+        dataType: "JSON",
+        success: function(res){
+        console.log(res);
+        console.log(res.status);
+        console.log(res.data);        }
+    })
+   })
+   }
+
+   function bindBtn2Event() {
+   $("#btn2").click(function(){
+   $.ajax({
+      url: '/task/ajax/',
+      type: "post",
+      data: {
+        name:$("#txtUser").val(),
+        age:$("#txtAge").val()
+        },
+        dataType: "JSON",
+        success: function(res){
+        console.log(res);
+        console.log(res.status);
+        console.log(res.data);        }
+    })
+   })
+   }
+
+
+   function bindBtnAddEvent() {
+   $("#btnAdd").click(function(){
+
+   $(".error-msg").text("");
+
+   $.ajax({
+      url: '/task/add/',
+      type: "post",
+      data: $("#formAdd").serialize(),
+        dataType: "JSON",
+        success: function(res){
+        if (res.status) {
+        alert("successfully added");
+        location.reload();
+        }else{
+        console.log(res.error);
+        $.each(res.error,function(name,data){
+        console.log(name,data);
+        $("#id_" + name).next().text(data[0])
+        })
+        }}
+    })
+   })
+   }
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

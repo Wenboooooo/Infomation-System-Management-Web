@@ -1,0 +1,297 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 10px">
+        <input id="btnAdd" type="button" value="New Order" class="btn btn-success">
+        <!--        <input type="button" value="New Order" class="btn btn-primary" data-toggle="modal" data-target="#myModal">-->
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                Order Table
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>OrderNumber</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Administrator</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in queryset %}
+                <tr uid="{{ item.id }}">
+                    <th>{{item.id}}</th>
+                    <td>{{item.oid}}</td>
+                    <td>{{item.title}}</td>
+                    <td>{{item.price}}</td>
+                    <td>{{item.get_status_display}}</td>
+                    <td>{{item.admin.username}}</td>
+                    <td>
+                        <input uid="{{item.id}}" type="button" class="btn btn-primary btn-xs btn-edit" value="edit">
+                        <input uid="{{item.id}}" type="button" class="btn btn-danger btn-xs btn-delete" value="delete">
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- New Order/Edit Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">New Created Order</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formModal">
+                    <div class="clearfix">
+                        {% for field in form %}
+                        <div class="col-xs-6">
+                            <div class="form-group" style="position: relative; margin-bottom: 20px; ">
+                                <label>{{ field.label }}</label>
+                                {{ field }}
+                                <span class="error-msg" style="color: red; position: absolute;"></span>
+
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button id="btnSave" type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+            <h4>The Order Will Be Deleted If You Confirm</h4>
+            <p style="margin: 10px 0;"> All related data will be deleted too</p>
+            <p style="text-align: right;">
+                <button id="btnConfirmDelete" type="button" class="btn btn-danger">Confirm</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<ul class="pagination">
+    {{ page_string }}
+</ul>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+
+    var DELETE_ID;
+    var EDIT_ID;
+
+
+    $(function(){
+        bindBtnAddEvent();
+        bindBtnSaveEvent();
+        bindBtnDeleteEvent();
+        bindBtnConfirmDeleteEvent();
+        bindBtnEditEvent();
+     })
+
+     function bindBtnAddEvent() {
+     $("#btnAdd").click(function(){
+        EDIT_ID = undefined;
+
+        $('#formModal')[0].reset();
+        $('#myModal').modal('show');
+        $("#myModalLabel").text("Add New Order");
+     });
+    }
+
+
+    function bindBtnSaveEvent() {
+        $("#btnSave").click(function(){
+
+
+            $(".error-msg").empty();
+
+
+            if(EDIT_ID) {
+                doEdit();
+            }else{
+                doAdd();
+            }});}
+
+
+
+
+
+
+    function doEdit() {
+        $.ajax({
+                url: "/order/edit/?uid=" + EDIT_ID,
+                type: "post",
+                data: $("#formModal").serialize(),
+                dataType:"JSON",
+                success:function(res) {
+                    if(res.status){
+                        alert("Successfully created");
+                        $("#formModal")[0].reset();
+                        $('#myModal').modal('hide');
+                        location.reload();
+                        }
+                        else{
+                            if(res.tips) {
+                                alert(res.tips);
+                            } else {
+                            $.each(res.error, function(name,errorList) {
+                                $("#id_"+name).next().text(errorList[0]);
+                            })
+                            }}
+                        }
+            });
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    function doAdd() {
+        $.ajax({
+                url: "/order/add/",
+                type: "post",
+                data: $("#formModal").serialize(),
+                dataType:"JSON",
+                success:function(res) {
+                    if(res.status){
+                        alert("Successfully created");
+                        $("#formModal")[0].reset();
+                        $('#myModal').modal('hide');
+                        location.reload();
+                        }
+                        else{
+                            $.each(res.error, function(name,errorList) {
+                                $("#id_"+name).next().text(errorList[0]);
+                            })
+                            }
+                        }
+            });
+
+    }
+
+
+
+
+
+
+    function bindBtnDeleteEvent() {
+    $(".btn-delete").click(function(){
+        $("#deleteModal").modal('show');
+
+        DELETE_ID = $(this).attr("uid")
+        });
+    }
+
+
+
+    function bindBtnConfirmDeleteEvent() {
+        $("#btnConfirmDelete").click(function () {
+            $.ajax({
+                url: "/order/delete/",
+                type: "GET",
+                data: {
+                    uid: DELETE_ID
+                },
+                dataType: "JSON",
+                success: function (res) {
+                    if(res.status){
+
+                        $("#deleteModal").modal('hide');
+
+                        $("tr[uid='" + DELETE_ID + "']").remove();
+
+                        DELETE_ID = 0;
+
+
+                    }else{
+                        alert(res.error);
+                }
+            }
+        })});}
+
+
+
+    function bindBtnEditEvent() {
+        $(".btn-edit").click(function () {
+            $('#formModal')[0].reset();
+
+
+            var uid = $(this).attr("uid");
+            EDIT_ID = uid;
+
+
+
+            $.ajax({
+                url:"/order/detail/",
+                type: "get",
+                data: {
+                    uid: uid
+                },
+                dataType: "JSON",
+                success: function (res) {
+                    console.log(res.data);
+
+                    $.each(res.data, function (name, value) {
+                        $("#id_" + name).val(value);
+
+                    })
+
+                    if(res.status){
+
+                        $("#myModalLabel").text("Edit Order Info");
+
+                        $("#myModal").modal('show');
+                    }else{
+                        alert(res.error)
+                    }
+                }
+            })
+        });
+    }
+
+
+
+
+
+
+
+
+</script>
+
+{% endblock %}

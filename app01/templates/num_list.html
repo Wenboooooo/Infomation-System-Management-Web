@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div style="margin-bottom: 10px" class="clearfix">
+    <a class="btn btn-success" href="/num/add/">
+        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+        New Mobile (ModelForm)</a>
+    <div style="float: right; width: 300px;">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Mobile search" value="{{search_data}}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+        Mobile Table
+    </div>
+
+    <!-- Table -->
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Mobile</th>
+            <th>Price</th>
+            <th>Level</th>
+            <th>Status</th>
+            <th>Operate</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in queryset %}
+        <tr>
+            <th>{{item.id}}</th>
+            <td>{{item.mobile}}</td>
+            <td>{{item.price}}</td>
+            <td>{{item.get_level_display}}</td>
+            <td>{{item.get_status_display}}</td>
+            <td>
+                <a class="btn btn-primary btn-xs" href="/num/{{item.id}}/edit">edit</a>
+                <a class="btn btn-danger btn-xs" href="/num/{{item.id}}/delete">delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div>
+    <ul class="pagination">
+        {{ page_string }}
+      </ul>
+
+
+
+    <div style="float: right; width: 300px;">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" name="page" class="form-control" placeholder="To page...">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+
+
+
+
+
+
+</div>
+{% endblock %}
